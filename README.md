@@ -3,8 +3,8 @@ Overall, this script automates network tasks and firewall management on Windows,
 
 Features:
 
-- Main-menu:
-      Set up hosted network      
+ Main-menu:
+      + Set up hosted network      
     + Manage hosted network
       - show hosted network status
       - start hosted netwok
