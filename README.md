@@ -19,4 +19,14 @@ Features:
    + exit
 
   NB: Most of these features require administrative rights, make sure you know your Admin username and password
+  there is a validation process at o the utility menu which will help you wth that
+
+imported modules:
+subprocess
+sys
+psutil
+re
+threading
+datetime
+logging
 
