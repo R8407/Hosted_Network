@@ -1,5 +1,6 @@
 # Hosted_Network
 Overall, this script automates network tasks and firewall management on Windows, providing flexibility for users to control hosted networks and device access.
+I also compiled it into an exe file. but you can download the source code and then do the compiling later with pyinstaller 
 
 Features:
 + Main-menu
