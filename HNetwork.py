@@ -7,7 +7,7 @@
 
 import subprocess
 import sys
-
+import ctypes
 import psutil
 import re
 import threading
@@ -22,12 +22,11 @@ import logging
 
 #----------------------------------------------------------------------------------------------
 # Function to run commands as admin
-def run_as_admin(command, capture_output=False):
+def run_as_admin(command, capture_output):
     try:
         # Create the command to run with 'runas' for admin privileges
         #ADmin Username and password required for this(security purposes)
-        Administrator =input("Enter the Administrator username of your computer")
-
+        Administrator=input("Inpute elevated User account or Administrator: ")
         admin_command = f'runas /noprofile /user:{Administrator} "cmd.exe /c {command}"'
 
         # Check if output capture is needed
@@ -46,6 +45,7 @@ def run_as_admin(command, capture_output=False):
 
         else:
             # Check if the command was successful
+            result = subprocess.run(admin_command, capture_output=False, text=True, shell=True)
             if result.returncode == 0:
                 print(f"Command '{command}' executed successfully.")
             else:
@@ -53,6 +53,20 @@ def run_as_admin(command, capture_output=False):
 
     except Exception as e:
         print(f"An error occurred: {e}")
+
+
+######check if you're running as admin
+def is_admin():
+    try:
+        return ctypes.windll.shell32.IsUserAnAdmin()
+    except:
+        return False
+def admin_verify():
+    if is_admin():
+        print("Verification successful: Running as Administrator.")
+    else:
+        print("Verification failed: Not running as Administrator.")
+
 
 #If the verification fails
 def Admin_verify():
@@ -79,16 +93,15 @@ def set_up(ssid, key):
 
     command = f"netsh wlan set hostednetwork mode=allow ssid={ssid} key={key}"
     try:
-        run_as_admin(command)
-        print(f"Hosted network '{ssid}' is up and running successfully")
+        run_as_admin(command, capture_output=True)
+        if run_as_admin(command,capture_output=True)==0:
+            print(f"Hosted network '{ssid}' is up and running successfully")
 
-        # Start the service for our newly created hosted network
-        command = 'netsh wlan start hostednetwork'
-        run_as_admin(command)
-        print(f"Hosted Network '{ssid}' started successfully.")
+        else:
+            print(f"Failed to set up hosted network{ssid}")
 
     except subprocess.CalledProcessError as e:
-        print(f"Failed to set up hosted network '{ssid}'. Error: {e}")
+        print(f"Failed to set up hosted network Error: {e}")
     return_to_menu()
     print()
     print()
@@ -104,10 +117,18 @@ def show_stats():
 
         if results.returncode != 0:
             print(f'Failed showing hosted network status: {results.stderr}')
+            return_to_menu()
 
     except subprocess.CalledProcessError as e:
         print(f"Failed to show hosted network status: {e}")
-    return_to_menu()
+
+    choice= input("press q to return to Management menu.....: ").strip()
+    if choice=="q":
+        Manage_hosted_network()
+    else:
+        print("invalid")
+        return_to_menu()
+
     print()
     print()
     print()
@@ -117,12 +138,25 @@ def show_stats():
 def start(ssid):
     try:
         command = 'netsh wlan start hostednetwork'
-        run_as_admin(command)
-        print(f"Hosted Network '{ssid}' started successfully.")
+        run_as_admin(command, capture_output=True)
+        if run_as_admin(command,capture_output=True)==0:
+         print(f"Hosted Network '{ssid}' started successfully.")
+
+        else:
+            print(f"Hosted Network '{ssid}' failed.")
 
     except subprocess.CalledProcessError as e:
         print(f"Starting hosted network '{ssid}' failed. Error: {e}")
-    return_to_menu()
+
+    choice = input("press q to return to Management menu.....: ").strip()
+    if choice == "q":
+        Manage_hosted_network()
+    else:
+        print("invalid")
+        return_to_menu()
+
+
+
     print()
     print()
     print()
@@ -132,7 +166,7 @@ def start(ssid):
 
 # Fourth function: Stop the service
 def stop_hostednetwork(ssid, key):
-    password = input("Input your key to verify: ")
+    password = input("Input your Network SSID key to verify: ")
 
     # Check if the provided password matches the key set from the set_up function
     if password == key:
@@ -146,7 +180,13 @@ def stop_hostednetwork(ssid, key):
             print("Failed to stop the hosted network. Please check your command and try again.")
     else:
         print("Incorrect password. Hosted network not stopped.")
-    return_to_menu()
+
+        choice = input("press q to return to Management menu.....: ").strip()
+        if choice == "q":
+            Manage_hosted_network()
+        else:
+            print("invalid")
+            return_to_menu()
     print()
     print()
     print()
@@ -193,7 +233,7 @@ def block_device():
         print(Vertical_format)
 
     except subprocess.CalledProcessError as e:
-        print(f"Couldn't print ARP table: {e}")
+        print(f"Couldn't print ARP table: {e} ")
         return
 
     # Input the IP of your target device
@@ -310,7 +350,7 @@ def allow_device():
         return
 
     # Input the IP of your target device
-    ip = input("From the ARP table, enter the IP address of the corresponding MAC address to be allowed: ")
+    ip = input("From the ARP table, enter the IP address of the corresponding MAC address to be allowed: ").strip()
 
     # Validate the IP address
     if is_valid_ip(ip):
@@ -320,7 +360,7 @@ def allow_device():
         allow_device()  # Retry allowing device
 
     # Input the profile name for the corresponding IP of blocked device to allow
-    blocked_name = input("Enter the profile name of the corresponding IP of blocked device to allow: ")
+    blocked_name = input("Enter the profile name of the corresponding IP of blocked device to allow: ").strip()
 
     # Attempt to allow outgoing traffic
     outgoing_command = f"netsh advfirewall firewall delete rule name='{blocked_name}' dir=OUT remoteip={ip}"
@@ -348,7 +388,7 @@ def allow_device():
     # Setting up the logger
 def log_network_activity():
     log_file = input(
-        r"enter set location(eg:C:\\Users\Dh4\Documents\Hosted_Network_activity.txt): Kindly add the Name.txt")
+        r"enter set location(eg:C:\\Users\Dh4\Documents\Hosted_Network_activity.txt): Kindly add the Name.txt: ").strip()
     current_connections = psutil.net_connections(kind='tcp')
 
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -359,15 +399,16 @@ def log_network_activity():
             with open(log_file, 'a') as f:
                 f.write(log_entry + "\n")
 
-    print(f"Network activity logged at {timestamp}")
+                print(f"Network activity failed to logged at {timestamp}")
 
     print()
     print()
     print()
+    return_to_menu()
 
     # -------------------------------------------------------------------------------------
     # Function to return to the main menu
-    def return_to_menu():
+def return_to_menu():
         menu = input("Press q to return to the main menu.....")
 
         if menu == "q":
@@ -399,13 +440,13 @@ def Manage_hosted_network():
     if choice == "1":
         show_stats()
 
-        if choice == "2":
+    if choice == "2":
             ssid = input("Enter the SSID of the hosted network you want to start: ")
             start(ssid)
 
     if choice == "3":
-        ssid = input("Enter the SSID of the hosted network you want to stop: ")
-        key = input("Enter the password: ")
+        ssid = input("Enter the SSID of the hosted network you want to stop: ").strip()
+        key = input("Enter the password: ").strip()
         stop_hostednetwork(ssid, key)
 
     if choice == "0":
@@ -426,7 +467,7 @@ def Device_Management():
     print("4. Delete (block/allowed) device settings")
     print("0. Return to Main menu")
     print()
-    choice = input("Enter your choice")
+    choice = input("Enter your choice: ").strip()
 
     if choice =="1":
         block_device()
@@ -454,7 +495,7 @@ def utility():
     print("2. verify system Administrator Username and password")
     print("0. Return to Main menu")
     print()
-    choice = input("Enter your choice: ")
+    choice = input("Enter your choice: ").strip()
 
     if choice == "1":
 
@@ -468,7 +509,25 @@ def utility():
         log_network_activity()
 
     if choice == "2":
-        Admin_verify()
+        print("1. Check if admin")
+        print("2. Verify with admin username AND password")
+        choice2 = input("Enter your choice: ").strip()
+
+        if choice2 == "1":
+            admin_verify()
+
+        elif choice2 == "2":
+            Admin_verify()
+
+        else:
+         print("Invalid choice")
+
+        back= input("press q to go back to utiity........")
+        if back=="q":
+         utility()
+        else:
+            print("invalid")
+            hosted_network_menu()
 
     if choice =="0":
         hosted_network_menu()
