@@ -26,7 +26,7 @@ def run_as_admin(command, capture_output):
     try:
         # Create the command to run with 'runas' for admin privileges
         #ADmin Username and password required for this(security purposes)
-        Administrator=input("Inpute elevated User account or Administrator: ")
+        Administrator=input("Input elevated User account or Administrator: ")
         admin_command = f'runas /noprofile /user:{Administrator} "cmd.exe /c {command}"'
 
         # Check if output capture is needed
