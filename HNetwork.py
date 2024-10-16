@@ -18,43 +18,6 @@ import logging
 import socket
 
 
-
-
-#----------------------------------------------------------------------------------------------
-# Function to run commands as admin
-def run_as_admin(command, capture_output):
-    try:
-        # Create the command to run with 'runas' for admin privileges
-        #ADmin Username and password required for this(security purposes)
-        Administrator=input("Inpute elevated User account or Administrator: ")
-        admin_command = f'runas /noprofile /user:{Administrator} "cmd.exe /c {command}"'
-
-        # Check if output capture is needed
-        if capture_output:
-            # Run the command and capture the output
-            result = subprocess.run(admin_command, capture_output=True, text=True, shell=True)
-
-            # Check if the command was successful
-            if result.returncode == 0:
-                print(f"Command '{command}' executed successfully with output:\n{result.stdout}")
-            else:
-                print(f"Command '{command}' failed to execute. Return code: {result.returncode}")
-
-            # Return the result object for further processing if needed
-            return result
-
-        else:
-            # Check if the command was successful
-            result = subprocess.run(admin_command, capture_output=False, text=True, shell=True)
-            if result.returncode == 0:
-                print(f"Command '{command}' executed successfully.")
-            else:
-                print(f"Command '{command}' failed to execute. Return code: {result.returncode}")
-
-    except Exception as e:
-        print(f"An error occurred: {e}")
-
-
 ######check if you're running as admin
 def is_admin():
     try:
@@ -81,35 +44,33 @@ def Admin_verify():
 
      return_to_menu()
 
-#------------------------------------------------------------------------------------------------
 
-# WE SETUP OUR INDIVIDUAL FUNCTIONS NEEDED FOR THIS SCRIPT
-
-### First Function: Setting up a new hosted network
 def set_up(ssid, key):
     if len(key) < 8:
-        print("Your key must be 8-68 ASCII")
+        print("Your key must be 8-68 ASCII characters.")
         return
 
     command = f"netsh wlan set hostednetwork mode=allow ssid={ssid} key={key}"
     try:
-        run_as_admin(command, capture_output=True)
-        if run_as_admin(command,capture_output=True)==0:
-            print(f"Hosted network '{ssid}' is up and running successfully")
+        # Run the command and capture the output
+        result = subprocess.run(command, check=True, shell=True, capture_output=True, text=True)
 
+        # Check if the command was successful
+        if result.returncode == 0:
+            print(f"Hosted network '{ssid}' is up and running successfully.")
+            print(result.stdout)  # Print the command output
         else:
-            print(f"Failed to set up hosted network{ssid}")
+            print(f"Failed to set up hosted network '{ssid}'.")
+            print(result.stderr)  # Print any error message
 
     except subprocess.CalledProcessError as e:
-        print(f"Failed to set up hosted network Error: {e}")
-    return_to_menu()
-    print()
-    print()
-    print()
+        print(f"Failed to set up hosted network. Error: {e.stderr}")  # Print the specific error message
 
-    #-----------------------------------------------------------------------------------------------
+    return_to_menu()  # Assuming you have this function defined somewhere
+    print("\n" * 3)
 
-# Second function: Show current stats of hosted network
+
+
 def show_stats():
     try:
         results = subprocess.run('netsh wlan show hostednetwork', capture_output=True, check=True, shell=True, text=True)
@@ -128,18 +89,14 @@ def show_stats():
     else:
         print("invalid")
         return_to_menu()
+    print("\n" * 3)
 
-    print()
-    print()
-    print()
 
-#-----------------------------------------------------------------------------------
-# Third function: Start hosted network
 def start(ssid):
     try:
         command = 'netsh wlan start hostednetwork'
-        run_as_admin(command, capture_output=True)
-        if run_as_admin(command,capture_output=True)==0:
+        subprocess.run(command, check=True, shell=True,capture_output=True)
+        if subprocess.run(command, check=True, shell=True,capture_output=True)==0:
          print(f"Hosted Network '{ssid}' started successfully.")
 
         else:
@@ -155,12 +112,9 @@ def start(ssid):
         print("invalid")
         return_to_menu()
 
+    print("\n" * 3)
 
 
-    print()
-    print()
-    print()
-####-----------------------
 def check_stats_of_connection():
     IP= input('Enter your hosted network IP address: ').strip()
     is_valid_ip(IP)
@@ -185,7 +139,6 @@ def check_stats_of_connection():
         print("invalid")
         return_to_menu()
 
-#---------------------------------------------
 
 def start_listening(hosted_network_IP, port):
     listen= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -199,13 +152,13 @@ def start_listening(hosted_network_IP, port):
 
         print(f"connection established with'{address}'")
 
-        client_socket.sendall(b"Welcome to the hosted network server!\n")
+        client_traffic.sendall(b"Welcome to the hosted network server!\n")
 
-        client_socket.close()
+        client_traffic.close()
 
 
 
-#------------------------------------------
+
 #Enter custom CLI codes
 def custom():
     command = input("Enter command: ").strip()
@@ -241,9 +194,6 @@ def custom():
 
 
 
-
-#------------------------------------------------------------------------------------------------
-
 # Fourth function: Stop the service
 def stop_hostednetwork(ssid, key):
     password = input("Input your Network SSID key to verify: ")
@@ -267,18 +217,15 @@ def stop_hostednetwork(ssid, key):
         else:
             print("invalid")
             return_to_menu()
-    print()
-    print()
-    print()
+    print("\n" * 3)
 
-#-------------------------------------------------------------------------------------------
-# FIFTH FUNCTION: Function to check the validity(xxx.xxx.xxx.xxx format) of an IP address
+# Function to check the validity(xxx.xxx.xxx.xxx format) of an IP address
 def is_valid_ip(ip):
     # Regular expression to validate an IP address
     pattern = re.compile(r"^(?:[0-9]{1,3}\.){3}[0-9]{1,3}$")
     return pattern.match(ip) is not None
 
-#-----------------------------------------------------------------------------------------------
+
 
 # This function formats ARP table output
 def format_arp_output(arp_output):
@@ -301,7 +248,6 @@ def format_arp_output(arp_output):
 
 
 
-#-------------------------------------------------------------------
 
 # : Block a device
 def block_device():
@@ -332,7 +278,7 @@ def block_device():
     # Attempt to block outgoing traffic
     outgoing_command = f"netsh advfirewall firewall add rule name='{blocked_name}' dir=OUT action=block remoteip={ip}"
     try:
-        run_as_admin(outgoing_command)
+        subprocess.run(outgoing_command, check=True, shell=True,capture_output=False)
         print(f"Successfully blocked outgoing traffic for {ip}.")
     except Exception as error:
         print(f"Failed to block outgoing traffic: {error}")
@@ -340,15 +286,13 @@ def block_device():
     # Attempt to block incoming traffic
     incoming_command = f"netsh advfirewall firewall add rule name='{blocked_name}' dir=IN action=block remoteip={ip}"
     try:
-        run_as_admin(incoming_command)
+        subprocess.run(incoming_command, check=True, shell=True, capture_output=False)
         print(f"Successfully blocked incoming traffic for {ip}.")
     except Exception as error:
         print(f"Failed to block incoming traffic: {error}")
 
     return_to_menu()
-    print()
-    print()
-    print()
+    print("\n" * 3)
 
 
     #----------------------------------------------------------------
@@ -389,9 +333,7 @@ def show_blocked_rules():
         print("Command failed to execute:", result.stderr)
 
     return_to_menu()
-    print()
-    print()
-    print()
+    print("\n" * 3)
 
 #------------------------------------------------
 
@@ -401,8 +343,7 @@ def delete_rule():
     command = f"netsh advfirewall firewall delete rule name={blocked_name}"
 
     try:
-        # Run the command as admin
-        results = run_as_admin(command, shell=True, check=True)
+        results = subprocess.run(command, shell=True, check=True, capture_output=False)
 
         if results.returncode == 0:
             print("Device setting has been successfully removed.")
@@ -445,7 +386,7 @@ def allow_device():
     # Attempt to allow outgoing traffic
     outgoing_command = f"netsh advfirewall firewall delete rule name='{blocked_name}' dir=OUT remoteip={ip}"
     try:
-        run_as_admin(outgoing_command)
+        subprocess.run(outgoing_command, check=True, shell=True, capture_output=False)
         print(f"Successfully allowed outgoing traffic for {ip}.")
     except Exception as error:
         print(f"Failed to allow outgoing traffic: {error}")
@@ -453,15 +394,13 @@ def allow_device():
     # Attempt to allow incoming traffic
     incoming_command = f"netsh advfirewall firewall delete rule name='{blocked_name}' dir=IN remoteip={ip}"
     try:
-        run_as_admin(incoming_command)
+        subprocess.run(incoming_command, check=True , shell=True, capture_output=False)
         print(f"Successfully allowed incoming traffic for {ip}.")
     except Exception as error:
         print(f"Failed to allow incoming traffic: {error}")
 
     return_to_menu()
-    print()
-    print()
-    print()
+    print("\n" * 3)
 
 #---------------------------------------------------
 
@@ -481,9 +420,7 @@ def log_network_activity():
 
                 print(f"Network activity failed to logged at {timestamp}")
 
-    print()
-    print()
-    print()
+    print("\n" * 3)
     return_to_menu()
 
     # -------------------------------------------------------------------------------------
@@ -496,9 +433,7 @@ def return_to_menu():
         else:
             print("Wrong input")
             return_to_menu()
-            print()
-            print()
-            print()
+            print("\n" * 3)
 
 
 #-------------------------------------------------------------------------------------
@@ -508,6 +443,7 @@ def return_to_menu():
   ##Manage Hosted Network menu -option 2
 
 def Manage_hosted_network():
+    print("")
     print("----Manage_hosted_network---")
     print()
     print("1. Show Hosted Network status")
@@ -583,6 +519,7 @@ def Device_Management():
 
 ##Utility option 4
 def utility():
+    print("")
     print("----welcome to Utility-----")
     print("1. start logger")
     print("2. verify system Administrator Username and password")
@@ -591,6 +528,7 @@ def utility():
     choice = input("Enter your choice: ").strip()
 
     if choice == "1":
+        log_network_activity()
 
         # Monitoring interval (e.g., every 10 seconds)
         interval = 30
@@ -599,7 +537,7 @@ def utility():
         while True:
             log_network_activity()
             time.sleep(interval)
-        log_network_activity()
+
 
     if choice == "2":
         print("1. Check if admin")
@@ -636,9 +574,7 @@ def utility():
 # FIFTH FUNCTION: To manage main the menu
 def hosted_network_menu():
     #spacing out the menu
-    print()
-    print()
-    print()
+    print("\n" * 3)
     print("Hosted Network Automation Menu")
     print("1. Set Up Hosted Network")
     print("2. Manage Hosted Network")
