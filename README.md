@@ -24,9 +24,7 @@ Features:
   + custom space for running cmd and powershell commands
    + exit
 
-  NB: Most of these features require administrative rights, make sure you know your Administrator password
-  there is a validation process at the utility menu which will help you wth that
-  NB: again, after entering the "Administrator", type your password once the cursor moves to the next blank line
+  NB: Make sure you run the .exe file as an administrator. 
 
 imported modules:
 +subprocess
