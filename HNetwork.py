@@ -12,7 +12,6 @@ import sys
 import ctypes
 import psutil
 import re
-import threading
 from datetime import datetime
 import logging
 import socket
