@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 # Python script to automate hosted networks on Windows alongside with other functions
 
 # KEY POINTS AND REPETITIVE COMMANDS
@@ -13,10 +15,8 @@ import re
 import threading
 from datetime import datetime
 import logging
+import socket
 
-# subprocess module which allows us to execute command line instructions directly from our script
-# re for validation of a particular input (IP validation in our case)
-# log activiy uses: psutil,threading,datetime,logging
 
 
 
@@ -26,7 +26,7 @@ def run_as_admin(command, capture_output):
     try:
         # Create the command to run with 'runas' for admin privileges
         #ADmin Username and password required for this(security purposes)
-        Administrator=input("Input elevated User account or Administrator: ")
+        Administrator=input("Inpute elevated User account or Administrator: ")
         admin_command = f'runas /noprofile /user:{Administrator} "cmd.exe /c {command}"'
 
         # Check if output capture is needed
@@ -160,9 +160,89 @@ def start(ssid):
     print()
     print()
     print()
+####-----------------------
+def check_stats_of_connection():
+    IP= input('Enter your hosted network IP address: ').strip()
+    is_valid_ip(IP)
+
+    command= f'netstat -an |find "{IP}"'
+    try:
+      check = subprocess.run(command, check=True , shell=True, capture_output=True, text=True)
+      print(check.stdout)
+
+      if check==0:
+         print("Netstat successful")
+
+      elif check==1:
+        print("Netstat failed")
+    except subprocess.CalledProcessError as e:
+        print(f"error {e}")
+
+    choice= input("press q to return to Management menu.....: ").strip()
+    if choice=="q":
+        Manage_hosted_network()
+    else:
+        print("invalid")
+        return_to_menu()
+
+#---------------------------------------------
+
+def start_listening(hosted_network_IP, port):
+    listen= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    listen.bind((hosted_network_IP,port))
+    listen.listen(50)
+    print(f" '{hosted_network_IP}' listening on port'{port}")
 
 
-    #------------------------------------------------------------------------------------------------
+    while True:
+        client_traffic, address = listen.accept()
+
+        print(f"connection established with'{address}'")
+
+        client_socket.sendall(b"Welcome to the hosted network server!\n")
+
+        client_socket.close()
+
+
+
+#------------------------------------------
+#Enter custom CLI codes
+def custom():
+    command = input("Enter command: ").strip()
+
+    try:
+        # Run the command using subprocess
+        Exec = subprocess.run(command, check=True, shell=True, capture_output=True, text=True)
+        # Print the output of the command
+        print(Exec.stdout)
+
+        # Check if the command executed successfully
+        if Exec.returncode == 0:
+            print("Custom command successful")
+        else:
+            print("Custom command failed")
+
+    except subprocess.CalledProcessError as e:
+        # Handle the command failure case
+        print("Error:", e)
+        print("Command output:", e.output)
+        print("Command stderr:", e.stderr)
+
+    choice = input("Press 'q' to return to the Management menu.....: ").strip()
+    if choice.lower() == "q":
+        return_to_menu()
+    else:
+            print("Invalid choice")
+            return
+        # Prompt the user to return to the menu
+
+
+
+
+
+
+
+#------------------------------------------------------------------------------------------------
 
 # Fourth function: Stop the service
 def stop_hostednetwork(ssid, key):
@@ -433,6 +513,8 @@ def Manage_hosted_network():
     print("1. Show Hosted Network status")
     print("2. Start Hosted Network")
     print("3. Stop Hosted Network")
+    print("4. Check open ports and listening ports on Hosted network")
+    print("5. Create a socket for incoming traffic ")
     print("0. Return to Main menu")
     print()
     choice = input("Enter your choice: ")
@@ -449,12 +531,23 @@ def Manage_hosted_network():
         key = input("Enter the password: ").strip()
         stop_hostednetwork(ssid, key)
 
+    if choice=='4':
+        check_stats_of_connection()
+
+    if choice=="5":
+        hosted_network_IP =input("input Hosted natwork Ip: ")
+        is_valid_ip(hosted_network_IP)
+
+        port = int(input("input prefered port: "))
+
+        start_listening(hosted_network_IP, port)
+
     if choice == "0":
         hosted_network_menu()
 
     else:
         print("invalid choice")
-        hosted_network_menu()
+        return
 
 
 ##device management option 3
@@ -551,6 +644,7 @@ def hosted_network_menu():
     print("2. Manage Hosted Network")
     print("3. Network Devices Management")
     print("4. Utility ")
+    print("5. Use custom command line")
     print("0. Exit")
     print()
 
@@ -572,6 +666,9 @@ def hosted_network_menu():
 
         elif choice == '4':
             utility()
+
+        elif choice=='5':
+            custom()
 
         elif choice == "0":
             print("Exiting...")
