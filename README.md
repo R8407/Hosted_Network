@@ -28,11 +28,12 @@ Features:
   there is a validation process at o the utility menu which will help you wth that
 
 imported modules:
-subprocess
-sys
-psutil
-re
-threading
-datetime
-logging
++subprocess
++sys
++psutil
++re
++threading
++datetime
++logging
++socket
 
