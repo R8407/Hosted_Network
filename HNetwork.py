@@ -12,13 +12,10 @@ import ctypes
 import psutil
 import re
 from datetime import datetime
-import pyfiglet
 import socket
 
 
 
-
-ascii_text= pyfiglet.figlet_format('PH4NT0M-404', )
 
 ######check if you're running as admin
 def is_admin():
@@ -297,7 +294,7 @@ def block_device():
     print("\n" * 3)
 
 
-    #----------------------------------------------------------------
+
 
 # Function for checking devices blocked
 def show_blocked_rules():
@@ -337,7 +334,7 @@ def show_blocked_rules():
     return_to_menu()
     print("\n" * 3)
 
-#------------------------------------------------
+
 
 def delete_rule():
     blocked_name = input("Type in the blocked name of the IP: ")
@@ -357,7 +354,6 @@ def delete_rule():
 
 
 
-    #--------------------------------------------------------
 
 # Function to allow a device
 def allow_device():
@@ -404,7 +400,7 @@ def allow_device():
     return_to_menu()
     print("\n" * 3)
 
-#---------------------------------------------------
+
 
     # Setting up the logger
 def log_network_activity():
@@ -425,7 +421,7 @@ def log_network_activity():
     print("\n" * 3)
     return_to_menu()
 
-    # -------------------------------------------------------------------------------------
+
     # Function to return to the main menu
 def return_to_menu():
         menu = input("Press q to return to the main menu.....")
@@ -438,7 +434,6 @@ def return_to_menu():
             print("\n" * 3)
 
 
-#-------------------------------------------------------------------------------------
 
 
 ##Managing sub menu options
@@ -570,13 +565,10 @@ def utility():
         utility()
 
 
- # -----------------------------------------------------------------------
-
 
 # FIFTH FUNCTION: To manage main the menu
 def hosted_network_menu():
-    print(ascii_text)
-    print("")
+    print('\n'*2)
     print("Hosted Network Automation Menu")
     print("1. Set Up Hosted Network")
     print("2. Manage Hosted Network")
