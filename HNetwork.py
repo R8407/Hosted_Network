@@ -47,7 +47,7 @@ def Admin_verify():
 def set_up(ssid, key):
     if len(key) < 8:
         print("Your key must be 8-68 ASCII characters.")
-        return
+        set_up()
 
     command = f"netsh wlan set hostednetwork mode=allow ssid={ssid} key={key}"
     try:
@@ -98,7 +98,7 @@ def start(ssid):
         if subprocess.run(command, check=True, shell=True,capture_output=True)==0:
          print(f"Hosted Network '{ssid}' started successfully.")
 
-        else:
+        elif subprocess.run(command, check=True , shell=True, capture_output=True)==1:
             print(f"Hosted Network '{ssid}' failed.")
 
     except subprocess.CalledProcessError as e:
@@ -140,20 +140,36 @@ def check_stats_of_connection():
 
 
 def start_listening(hosted_network_IP, port):
-    listen= socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    listen.bind((hosted_network_IP,port))
-    listen.listen(50)
-    print(f" '{hosted_network_IP}' listening on port'{port}")
+    # Create a socket object
+    listen = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+    try:
+        # Bind the socket to the hosted network IP and port
+        listen.bind((hosted_network_IP, port))
+        # Start listening for incoming connections
+        listen.listen(50)
+        print(f"'{hosted_network_IP}' listening on port '{port}'")
 
-    while True:
-        client_traffic, address = listen.accept()
+        while True:
+            # Accept incoming client connections
+            client_traffic, address = listen.accept()
+            print(f"Connection established with '{address}'")
 
-        print(f"connection established with'{address}'")
+            # Send a welcome message to the client
+            client_traffic.sendall(b"Welcome to the hosted network server!\n")
+            # Close the connection with the client
+            client_traffic.close()
 
-        client_traffic.sendall(b"Welcome to the hosted network server!\n")
-
-        client_traffic.close()
+    except socket.error as e:
+        print(f"Socket error occurred: {e}")
+    except KeyboardInterrupt:
+        print("Server stopped by user.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        # Clean up the socket
+        listen.close()
+        print("Socket closed.")
 
 
 
@@ -251,7 +267,8 @@ def format_arp_output(arp_output):
 # : Block a device
 def block_device():
     # Use ARP table to find target device's IP
-    command = 'arp -a'
+    IP =input("Enter Hosted Network IP: ").strip()
+    command = f'arp -a| findstr "{IP}"'
     try:
         arp = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
         Vertical_format = format_arp_output(arp.stdout)
