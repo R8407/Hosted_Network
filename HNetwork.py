@@ -5,7 +5,6 @@
 # KEY POINTS AND REPETITIVE COMMANDS
 # (Check = True): Ensures that if the command issued by subprocess.run() fails, a subprocess.CalledProcessError will be raised.
 # (Shell = True): Allows the subprocess command to run in the shell
-#  (#----------------------------) represent the end of a function and the start of a new functn
 
 import subprocess
 import sys
