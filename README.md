@@ -19,7 +19,7 @@ Features:
    + Utility
        - start logger
        + Privilages
-          -Check if you're already logged in with administrative permission 
+          - Check if you're already logged in with administrative permission 
           - verification of Administrative privilages
   + custom space for running cmd and powershell commands
    + exit
