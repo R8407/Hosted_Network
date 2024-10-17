@@ -13,9 +13,13 @@ import ctypes
 import psutil
 import re
 from datetime import datetime
-import logging
+import pyfiglet
 import socket
 
+
+
+
+ascii_text= pyfiglet.figlet_format('PH4NT0M-404', )
 
 ######check if you're running as admin
 def is_admin():
@@ -572,8 +576,8 @@ def utility():
 
 # FIFTH FUNCTION: To manage main the menu
 def hosted_network_menu():
-    #spacing out the menu
-    print("\n" * 3)
+    print(ascii_text)
+    print("")
     print("Hosted Network Automation Menu")
     print("1. Set Up Hosted Network")
     print("2. Manage Hosted Network")
