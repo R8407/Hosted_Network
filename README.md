@@ -24,7 +24,7 @@ Features:
   + custom space for running cmd and powershell commands
    + exit
 
-  NB: Make sure you run the .exe file as an administrator. 
+  NB: Make sure you run the .exe file as an administrator. Using thre "runas" command, when your cursor moves to the next line after allowing administrative rights without a prompt, just type your password
 
 imported modules:
 +subprocess
