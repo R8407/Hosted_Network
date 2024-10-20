@@ -7,7 +7,7 @@ Features:
    + set up hosted network
    + Manage hosted network
      - show hosted network status
-     - start hosted netwok
+     - start hosted network
      - stop hosted network
      - show listening ports on hosted network
      - create listening ports on hosted network
@@ -18,9 +18,9 @@ Features:
       - Delete block settings for devices
    + Utility
        - start logger
-       + Privilages
+       + Privileges
           - Check if you're already logged in with administrative permission 
-          - verification of Administrative privilages
+          - verification of Administrative privileges
   + custom space for running cmd and powershell commands
    + exit
 
