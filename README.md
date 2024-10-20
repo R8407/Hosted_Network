@@ -21,7 +21,7 @@ Features:
        + Privileges
           - Check if you're already logged in with administrative permission 
           - verification of Administrative privileges
-  + custom space for running cmd and powershell commands
+  + space for running custom cmd and powershell commands
    + exit
 
   NB: Make sure you run the .exe file as an administrator. Using thre "runas" command, when your cursor moves to the next line after allowing administrative rights without a prompt, just type your password
