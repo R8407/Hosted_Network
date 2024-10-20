@@ -171,45 +171,57 @@ def start_listening(hosted_network_IP, port):
         listen.close()
         print("Socket closed.")
 
+def run_cmd(command):
+    result = subprocess.run(command, shell=True, text=True, capture_output=True)
+    print("CMD Output:\n", result.stdout)
 
+    choice = input("Press 'r' to run cmd or press 'q' to return to the Main Menu.....: ").strip()
+    if choice.lower() == "q":
+        return_to_menu()
+    elif choice.lower()=="r":
+        custom()
+    else:
+        print("Invalid choice")
+        return
+    # Prompt the user to return to the menu
+
+
+def run_powershell(command):
+    result = subprocess.run(["powershell", "-Command", command], text=True, capture_output=True)
+    print("PowerShell Output:\n", result.stdout)
+
+    choice = input("Press 'r' to run cmd or press 'q' to return to the Main Menu.....: ").strip()
+    if choice.lower() == "q":
+        return_to_menu()
+    elif choice.lower() == "r":
+        custom()
+    else:
+        print("Invalid choice")
+        return
 
 
 #Enter custom CLI codes
 def custom():
-    command = input("Enter command: ").strip()
+    print("1. CMD")
+    print("2. Powershell")
+    print("")
+    choice = input("select option: ")
+    if choice =="1":
+        command = input("Enter command: ").strip()
+        run_cmd(command)
 
-    try:
-        # Run the command using subprocess
-        Exec = subprocess.run(command, check=True, shell=True, capture_output=True, text=True)
-        # Print the output of the command
-        print(Exec.stdout)
-
-        # Check if the command executed successfully
-        if Exec.returncode == 0:
-            print("Custom command successful")
-        else:
-            print("Custom command failed")
-
-    except subprocess.CalledProcessError as e:
-        # Handle the command failure case
-        print("Error:", e)
-        print("Command output:", e.output)
-        print("Command stderr:", e.stderr)
-
-    choice = input("Press 'q' to return to the Management menu.....: ").strip()
-    if choice.lower() == "q":
-        return_to_menu()
+    elif choice=="2":
+        command = input("Enter command: ").strip()
+        run_powershell(command)
     else:
-            print("Invalid choice")
-            return
-        # Prompt the user to return to the menu
+        print("Invalid")
+        custom()
 
 
 
 
 
-
-# Fourth function: Stop the service
+## Stop the service
 def stop_hostednetwork(ssid, key):
     password = input("Input your Network SSID key to verify: ")
 
@@ -596,7 +608,7 @@ def hosted_network_menu():
     print()
 
     while True:
-        choice = input("Choose an option (1-4 or 0 to exit): ")
+        choice = input("Choose an option (1-5 or 0 to exit): ")
 
         if choice == "1":
             ssid = input("Enter the SSID (Name of your network): ")
