@@ -9,7 +9,6 @@
 import subprocess
 import sys
 import ctypes
-import psutil
 import re
 from datetime import datetime
 import socket
