@@ -29,7 +29,6 @@ Features:
 imported modules:
 +subprocess
 +sys
-+psutil
 +re
 +datetime
 +logging
